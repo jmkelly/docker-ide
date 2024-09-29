@@ -13,12 +13,12 @@ run apt-get update && apt-get install -y \
     curl \
     wget \
     git \
-    neovim \
     npm \
     fontconfig \
-    unzip \
+    unzip \ 
 	ripgrep \
 	fd-find \
+	dotnet-sdk-8.0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install a Nerd Font (e.g., FiraCode Nerd Font)
@@ -36,9 +36,25 @@ run LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygi
 	echo "Downloading lazygit from $DOWLOAD_URL" && \
 	curl -Lo lazygit.tar.gz $DOWLOAD_URL && \
 	tar xf lazygit.tar.gz lazygit && \
-	install lazygit /usr/local/bin
+	install lazygit /usr/local/bin && \
+	rm lazygit* -R 
 
-run useradd -ms /bin/bash newuser
+
+# install neovim and add to path
+arg NEOVIM_VERSION=0.10.1
+arg INSTALL_DIR=/opt/nvim
+
+# run curl -LO https://github.com/neovim/neovim/releases/download/v$NEOVIM_VERSION/nvim.appimage && \
+# 	chmod u+x nvim.appimage && \
+# 	mkdir -p $INSTALL_DIR && \
+# 	mv nvim.appimage $INSTALL_DIR/nvim && \
+# 	ln $INSTALL_DIR/nvim /usr/local/bin/nvim 
+
+run curl -LO https://github.com/neovim/neovim/releases/download/v$NEOVIM_VERSION/nvim.appimage && \
+	chmod u+x nvim.appimage && \
+	./nvim.appimage --appimage-extract && \
+	./squashfs-root/AppRun --version && \
+	ln -s /squashfs-root/AppRun /usr/bin/nvim
 
 # set up a non-root user 
 arg username=dev
@@ -58,21 +74,21 @@ run echo 'syntax on' >> /home/$username/.config/nvim/init.vim
 run rm -rf ~/.config/nvim  && \
 	git clone https://github.com/lazyvim/starter ~/.config/nvim
 
-#extract the roslyn server
-# arg RID=linux-x64
-# run targetDir="~/.local/share/nvim/roslyn" && \ 
-# 	latestVersion=$(curl -s https://api.github.com/repos/Crashdummyy/roslynLanguageServer/releases | grep tag_name | head -1 | cut -d '"' -f4) && \
-# 	[[ -z "$latestVersion" ]] && echo "Failed to fetch the latest package information." && exit 1 && \
-# 	echo "Latest version: $latestVersion" && \
-# 	asset=$(curl -s https://api.github.com/repos/Crashdummyy/roslynLanguageServer/releases | grep "releases/download/$latestVersion" | grep "$RID"| cut -d '"' -f 4) && \
-# 	echo "Downloading: $asset" && \
-# 	curl -Lo "./roslyn.zip" "$asset" && \
-# 	echo "Remove old installation" && \
-# 	rm -rf $targetDir/* && \
-# 	unzip "./roslyn.zip" -d "$targetDir/" && \
-# 	rm "./roslyn.zip"
-
+arg RID=linux-x64
+run targetDir="/home/$username/.local/share/nvim/mason/packages/rosyln" && \ 
+	mkdir -p $targetDir && \
+	LATESTVERSION=$(curl -s https://api.github.com/repos/Crashdummyy/roslynLanguageServer/releases | grep tag_name | head -1 | cut -d '"' -f4) && \
+	echo "Latest version: $LATESTVERSION" && \
+	asset=$(curl -s https://api.github.com/repos/Crashdummyy/roslynLanguageServer/releases | grep "releases/download/$LATESTVERSION" | grep "$RID"| cut -d '"' -f 4) && \
+	echo "Downloading: $asset" && \
+	cd /home/$username && \
+	curl -Lo "roslyn.zip" "$asset" && \
+	echo "Remove old installation" && \
+	rm -rf $targetDir/* && \
+	unzip "roslyn.zip" -d roslyn && \
+	cp -r roslyn/* $targetDir && \
+	mkdir -p /home/$username/.local/share/nvim/mason/bin && \
+	ln -s /home/$username/.local/share/nvim/mason/packages/rosyln/Microsoft.CodeAnalysis.LanguageServer /home/$username/.local/share/nvim/mason/bin/rosyln && \
+	rm roslyn* -R
 
 #keep it running
-cmd ["nvim"]
-
