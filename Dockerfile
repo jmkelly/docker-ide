@@ -44,12 +44,6 @@ run LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygi
 arg NEOVIM_VERSION=0.10.1
 arg INSTALL_DIR=/opt/nvim
 
-# run curl -LO https://github.com/neovim/neovim/releases/download/v$NEOVIM_VERSION/nvim.appimage && \
-# 	chmod u+x nvim.appimage && \
-# 	mkdir -p $INSTALL_DIR && \
-# 	mv nvim.appimage $INSTALL_DIR/nvim && \
-# 	ln $INSTALL_DIR/nvim /usr/local/bin/nvim 
-
 run curl -LO https://github.com/neovim/neovim/releases/download/v$NEOVIM_VERSION/nvim.appimage && \
 	chmod u+x nvim.appimage && \
 	./nvim.appimage --appimage-extract && \
@@ -75,7 +69,7 @@ run rm -rf ~/.config/nvim  && \
 	git clone https://github.com/lazyvim/starter ~/.config/nvim
 
 arg RID=linux-x64
-run targetDir="/home/$username/.local/share/nvim/mason/packages/rosyln" && \ 
+run targetDir="/home/$username/.local/share/nvim/rosyln" && \ 
 	mkdir -p $targetDir && \
 	LATESTVERSION=$(curl -s https://api.github.com/repos/Crashdummyy/roslynLanguageServer/releases | grep tag_name | head -1 | cut -d '"' -f4) && \
 	echo "Latest version: $LATESTVERSION" && \
@@ -87,8 +81,4 @@ run targetDir="/home/$username/.local/share/nvim/mason/packages/rosyln" && \
 	rm -rf $targetDir/* && \
 	unzip "roslyn.zip" -d roslyn && \
 	cp -r roslyn/* $targetDir && \
-	mkdir -p /home/$username/.local/share/nvim/mason/bin && \
-	ln -s /home/$username/.local/share/nvim/mason/packages/rosyln/Microsoft.CodeAnalysis.LanguageServer /home/$username/.local/share/nvim/mason/bin/rosyln && \
 	rm roslyn* -R
-
-#keep it running
