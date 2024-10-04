@@ -5,7 +5,7 @@ from ubuntu:24.04
 env DEBIAN_FRONTEND=noninteractive
 
 # Use stable neovim package source
-run apt-get update && apt-get install -y software-properties-common && add-apt-repository ppa:neovim-ppa/stable
+run apt-get update && apt-get install -y software-properties-common
 
 # Update the package list and install necessary packages
 run apt-get update && apt-get install -y \
@@ -66,7 +66,8 @@ run echo 'syntax on' >> /home/$username/.config/nvim/init.vim
 
 #clone lazyvim for quick start
 run rm -rf ~/.config/nvim  && \
-	git clone https://github.com/lazyvim/starter ~/.config/nvim
+	git clone https://github.com/jmkelly/dotfiles.git /home/$username/dotfiles && \
+	mv /home/$username/dotfiles/.config/nvim /home/$username/.config/nvim
 
 arg RID=linux-x64
 run targetDir="/home/$username/.local/share/nvim/rosyln" && \ 
